@@ -7,7 +7,7 @@ library(pwr)
 
 #Prepare input dataframe
 Metadata <- read.delim2("GPS_Brazil_metadata.csv", header = T, sep = ',')
-data <- subset(Metadata, select=c("GPSC", grep("Vaccine_Period", colnames(Metadata), value = TRUE), grep("PCV13_Status", colnames(Metadata), value = TRUE), grep("^Age_group", colnames(Metadata), value = TRUE)))
+data <- subset(Metadata, select=c("GPSC", grep("Vaccine_Period", colnames(Metadata), value = TRUE), grep("PCV10_Status", colnames(Metadata), value = TRUE), grep("^Age_group", colnames(Metadata), value = TRUE)))
 
 # Create an output dataframe
 GPSC_Pre_PostPCV <- data.frame("Age"=0, "Vaccine_Status" =0, "GPSC"=0, "Pre-PCV_GPSC" =0, "Pre-PCV_total" =0, "Post-PCV_GPSC" =0, "Post-PCV_total"=0, "p"=0)
@@ -23,16 +23,16 @@ Post_other_proportion <- 0
 
 #Power test and Fisher's exact test
 age <- unique(data$Age_group__autocolour)
-vaccine_status <- unique(data$PCV13_Status__autocolour)
+vaccine_status <- unique(data$PCV10_Status__autocolour)
 
 for (k in age){
   data_age <- subset(data, data$Age_group__autocolour == k)
     for (j in vaccine_status){
-      data_age_status <- subset(data_age, data_age$PCV13_Status__autocolour == j)
+      data_age_status <- subset(data_age, data_age$PCV10_Status__autocolour == j)
       GPSCs <- unique(data_age_status$GPSC)
         for (i in GPSCs){
           data_age_status_GPSC <- subset(data_age_status, GPSC == i)
-          pcv <- sort(unique(data_age_status_GPSC$Vaccine_Period__autocolour))
+          pcv <- sort(unique(data_age_status_GPSC$Vaccine_Period__autocolour),decreasing = TRUE)
           Pre_GPSC <- nrow(subset(data_age_status_GPSC, Vaccine_Period__autocolour==pcv[1][1]))
           Post_GPSC <- nrow(subset(data_age_status_GPSC, Vaccine_Period__autocolour==pcv[2][1]))
           Pre_other <- nrow(subset(data_age_status,GPSC !=i & Vaccine_Period__autocolour == pcv[1][1]))

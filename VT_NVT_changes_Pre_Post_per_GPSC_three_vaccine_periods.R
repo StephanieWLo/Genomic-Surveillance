@@ -10,8 +10,7 @@ Metadata <- read.delim2("GPS_Argentina_metadata.csv", header = T, sep = ',')
 data <- subset(Metadata, select=c("GPSC", "Vaccine_Period", "Vaccine_Status")) 
 
 # Create an output dataframe
-GPSC_Pre_PostPCV <- data.frame("Vaccine_Period" =0, "Vaccine_Status" =0, "GPSC"=0, "Pre-PCV_GPSC" =0, "Pre-PCV_total" =0, "Post-PCV_GPSC" =0, "Post-PCV_total"=0, "p"=0)
-#VT_Pre_PostPCV <- data.frame("Vaccine" =0, "GPSC"=0, "Pre-PCV_GPSC_VT" =0, "Pre-PCV_total_VT" =0, "Post-PCV_GPSC_VT" =0, "Post-PCV_total_VT"=0, "p")
+GPSC_Pre_PostPCV <- data.frame("Vaccine_Period" =0, "Vaccine_Status" =0, "GPSC"=0, "Period1_GPSC" =0, "Period1_total" =0, "Period2_GPSC" =0, "Period2_total"=0, "p"=0)
 Pre_GPSC <- 0
 Pre_other <- 0
 Post_GPSC <-0
