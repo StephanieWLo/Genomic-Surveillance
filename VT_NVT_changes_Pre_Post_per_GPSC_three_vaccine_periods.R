@@ -30,9 +30,9 @@ for (k in vaccine_status){
   data_status <- subset(data, data$Vaccine_Status == k)
     for (j in vaccine_period){
       data_status_period <- subset(data_status, data_status$Vaccine_Period !=j)
+      pcv <- unique(data_status_period$Vaccine_Period)
         for (i in GPSCs){
           data_status_period_GPSC <- subset(data_status_period, data_status_period$GPSC == i)
-          pcv <- unique(data_status_period_GPSC$Vaccine_Period)
           Pre_GPSC <- nrow(subset(data_status_period_GPSC, Vaccine_Period==pcv[1][1]))
           Post_GPSC <- nrow(subset(data_status_period_GPSC, Vaccine_Period==pcv[2][1]))
           Pre_other <- nrow(subset(data_status_period,GPSC !=i & Vaccine_Period == pcv[1][1]))
@@ -50,7 +50,7 @@ for (k in vaccine_status){
           if(sum(GPSC) > pwr$N) 
           {
             p <- fisher.test(GPSC, alternative)$p.value
-            pcv_compare <- unique(data_status_period_GPSC$Vaccine_Period)
+            pcv_compare <- unique(data_status_period$Vaccine_Period)
             GPSC_Pre_PostPCV <- rbind(GPSC_Pre_PostPCV, c(toString(pcv_compare),k, i, Pre_GPSC,Pre_GPSC+Pre_other,Post_GPSC,Post_GPSC+Post_other,p))
             
           }
