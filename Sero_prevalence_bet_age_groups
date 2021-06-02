@@ -1,0 +1,60 @@
+#Comparison of serotype prevalence between age groups (<5 and >=50 yr)
+
+library(epiR)
+library(pwr)
+
+Metadata <- read.delim2("microreact-project-GPS_India-data_2June2021.csv", header = T, sep = ',')
+data <- subset (Metadata, select = c("Age_group_simplify", "In_Silico_Serotype", "Clinical_manifest"))
+age <- unique(data$Age_group_simplify)
+serotype<- unique(data$In_Silico_Serotype)
+manifest <- unique (data$Clinical_manifest)
+
+output <- data.frame(
+  "serotype"=0,
+  "manifest"=0,
+  "child"=0,
+  "elderly"=0,
+  "child_percent"=0,
+  "elderly_percent"=0,
+  "p"=0,
+  "adjusted_p"=0
+)
+
+for (k in manifest)
+{
+  df<- subset(data, Clinical_manifest == k)
+  
+  for (i in serotype)
+  {
+    sero_data <- subset(df, In_Silico_Serotype == i)
+    child_sero <- nrow(subset(sero_data, Age_group_simplify == "<5"))
+    elderly_sero <- nrow(subset(sero_data, Age_group_simplify == ">=50"))
+    child <- nrow(subset(df, In_Silico_Serotype != i & Age_group_simplify == "<5"))
+    elderly <- nrow(subset(df, In_Silico_Serotype != i & Age_group_simplify == ">=50"))
+  
+    child_sero_proportion <- (child_sero + 0.001) / (child_sero + child + 0.001) 
+    elderly_sero_proportion <- (elderly_sero + 0.001) / (elderly_sero + elderly + 0.001) 
+    child_proportion <- (child + 0.001) / (child_sero + child + 0.001) 
+    elderly_proportion <- (elderly + 0.001) / (elderly_sero + elderly + 0.001) 
+  
+   age_sero <- matrix(c(child_sero,elderly_sero,child, elderly), nrow = 2, byrow = T)
+    age_sero_proportion <- matrix(c(child_sero_proportion,elderly_sero_proportion,child_proportion,elderly_proportion), nrow = 2, byrow = T)
+    pwr <- pwr.chisq.test(w = ES.w2(age_sero_proportion), power = 0.8, df = 1, sig.level = 0.05)
+  
+    if(sum(age_sero) > pwr$N) 
+    {
+      p <- fisher.test(age_sero, alternative)$p.value
+      output <- rbind(output, c(i, k, child_sero, elderly_sero, round(child_sero_proportion*100), round(elderly_sero_proportion*100), p))
+    }
+  }
+}
+
+dis_output <- subset(output, manifest == "Disease")
+dis_output$adjust_p <- p.adjust(dis_output$p, "BH", n = nrow(dis_output))
+
+car_output <- subset(output, manifest == "Carriage")
+car_output$adjust_p <- p.adjust(car_output$p, "BH", n = nrow(car_output))
+
+
+write.csv(dis_output, file ="dis_serotype_age_output.csv", row.names = FALSE)
+write.csv(car_output, file ="car_serotype_age_output.csv", row.names = FALSE)
